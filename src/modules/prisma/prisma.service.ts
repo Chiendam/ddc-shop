@@ -12,4 +12,10 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       await app.close();
     });
   }
+
+  async clearData() {
+    this.$transaction([
+      this.category.deleteMany()
+    ])
+  }
 }

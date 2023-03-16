@@ -4,8 +4,8 @@ import { AppService } from './app.service';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { CategoryModule } from './modules/category/category.module';
 import { ConfigModule } from '@nestjs/config';
-import configuration from '@/configs/configuration';
-import { TransformInterceptor } from 'interceptors/transform.interceptor';
+import configuration from './configs/configuration';
+import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
