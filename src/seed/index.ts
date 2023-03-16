@@ -7,7 +7,7 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient()
 async function main() {
   // create init data group permission
-  await prisma.groupPermission.createMany({
+  const data = await prisma.groupPermission.createMany({
     data: groupPermissions,
     skipDuplicates: true,
   });
@@ -15,7 +15,7 @@ async function main() {
     data: permission,
     skipDuplicates: true,
   });
-  const passwrodHash = await bcrypt.hash(user.password, parseInt(process.env.SALT_OR_ROUNDS) || 10)
+  const passwrodHash = await bcrypt.hash(user.password, parseInt(process?.env?.SALT_OR_ROUNDS) || 10)
   const initUser = prisma.user.createMany({
     data: [
       {...user, password: passwrodHash}
