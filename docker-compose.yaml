@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  dev-database:
+    image: mysql
+    container_name: dev_database
+    ports:
+      - 3338:3306 #{port in host(myPC)}: {port in container}
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456aA@
+      MYSQL_DATABASE: ddc-shop
+    networks:
+      - nestjs-network
+networks:
+  nestjs-network:

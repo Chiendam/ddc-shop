@@ -1,0 +1,184 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  email        String?
+  fullname     String    @map(name: "full_name")
+  phoneNumber  String?   @map(name: "phone_number")
+  password     String?
+  active       Boolean   @default(true)
+  isSuperAdmin Boolean?  @default(false) @map(name: "is_super_admin")
+  roleId       String?   @map(name: "role_id")
+  createBy     String?   @map(name: "create_by")
+  updateBy     String?   @map(name: "update_by")
+  createdAt    DateTime  @default(now()) @map(name: "created_at")
+  updatedAt    DateTime? @updatedAt @map(name: "updated_at")
+
+  role Role? @relation(fields: [roleId], references: [id])
+
+  @@map("user")
+}
+
+model Role {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  createBy    String?   @map(name: "create_by")
+  updateBy    String?   @map(name: "update_by")
+  createdAt   DateTime  @default(now()) @map(name: "created_at")
+  updatedAt   DateTime? @updatedAt @map(name: "updated_at")
+
+  users           User[]
+  RolePermissions RolePermissions[]
+
+  @@map("role")
+}
+
+model Permission {
+  id          String    @id @default(cuid())
+  name        String
+  code        String
+  codeGroup   String    @map(name: "code_group")
+  description String?
+  createdAt   DateTime? @default(now()) @map(name: "created_at")
+  updatedAt   DateTime? @updatedAt @map(name: "updated_at")
+
+  groudPermission GroupPermission   @relation(fields: [codeGroup], references: [code])
+  RolePermissions RolePermissions[]
+
+  @@map("permission")
+}
+
+model RolePermissions {
+  id           String @id @default(cuid())
+  roleId       String @map(name: "role_id")
+  permissionId String @map(name: "permission_id")
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@map("role_permissions")
+}
+
+model GroupPermission {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  name        String
+  description String?
+  createdAt   DateTime  @default(now()) @map(name: "created_at")
+  updatedAt   DateTime? @updatedAt @map(name: "updated_at")
+
+  permissions Permission[]
+
+  @@map("group_permission")
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  order     Int?      @default(0)
+  status    Boolean?  @default(true)
+  parentId  String?   @map(name: "parent_id")
+  createBy  String?   @map(name: "create_by")
+  updateBy  String?   @map(name: "update_by")
+  createdAt DateTime  @default(now()) @map(name: "created_at")
+  updatedAt DateTime? @updatedAt @map(name: "updated_at")
+
+  categoryProduct CategoryProduct[]
+  CategoryPost    CategoryPost[]
+  slug            Slug?
+
+  @@map("category")
+}
+
+model CategoryProduct {
+  id         String @id @default(cuid())
+  categoryId String @map(name: "category_id")
+  productId  String @map(name: "product_id")
+
+  category Category @relation(fields: [categoryId], references: [id])
+  product  Product  @relation(fields: [productId], references: [id])
+
+  @@map("category_product")
+}
+
+model Product {
+  id          String    @id @default(uuid())
+  name        String
+  price       BigInt
+  importPrice BigInt    @map(name: "import_price")
+  amount      Int //so luong
+  unit        String //don vi
+  description String
+  sellNumber  Int       @map(name: "sell_number")
+  status      Boolean
+  isNew       Boolean   @map(name: "is_new")
+  isSale      Boolean   @map(name: "is_sale")
+  isHot       Boolean   @map(name: "is_hot")
+  createBy    String?   @map(name: "create_by")
+  updateBy    String?   @map(name: "update_by")
+  createdAt   DateTime  @default(now()) @map(name: "created_at")
+  updatedAt   DateTime? @updatedAt @map(name: "updated_at")
+
+  categoryProduct CategoryProduct[]
+  slug            Slug?
+
+  @@map("product")
+}
+
+model Post {
+  id          String    @id @default(uuid())
+  title       String    @db.VarChar(350)
+  description String    @db.VarChar(350)
+  content     String
+  thumbnail   String    @db.VarChar(350)
+  status      Boolean
+  createBy    String?   @map(name: "create_by")
+  updateBy    String?   @map(name: "update_by")
+  createdAt   DateTime  @default(now()) @map(name: "created_at")
+  updatedAt   DateTime? @updatedAt @map(name: "updated_at")
+
+  categoryPost CategoryPost[]
+  slug         Slug?
+
+  @@map("post")
+}
+
+model CategoryPost {
+  id         String @id @default(cuid())
+  categoryId String @map(name: "category_id")
+  postId     String @map(name: "post_id")
+
+  category Category @relation(fields: [categoryId], references: [id])
+  post     Post     @relation(fields: [postId], references: [id])
+}
+
+enum slugableType {
+  POST
+  CATEGORY
+  PRODUCT
+}
+
+model Slug {
+  id           String       @id @default(cuid())
+  content      String
+  productId    String?      @unique @map(name: "product_id")
+  postId       String?      @unique @map(name: "post_id")
+  categoryId   String?      @unique @map(name: "category_id")
+  slugableType slugableType
+
+  product  Product?  @relation(fields: [productId], references: [id])
+  category Category? @relation(fields: [categoryId], references: [id])
+  post     Post?     @relation(fields: [postId], references: [id])
+}
