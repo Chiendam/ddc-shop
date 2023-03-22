@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsString, IsNotEmpty, IsOptional, IsNumber } from "class-validator";
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsBoolean } from "class-validator";
 
 export class CreateCategoryDto {
   @ApiProperty()
@@ -13,6 +13,13 @@ export class CreateCategoryDto {
     message: 'Trường parentId phải là kiểu chuỗi'
   })
   parentId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean({
+    message: 'Trường active phải là kiểu boolean'
+  })
+  active?: boolean = true;
 
   @ApiPropertyOptional()
   @IsNumber({}, {
