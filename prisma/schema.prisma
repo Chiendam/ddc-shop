@@ -88,12 +88,16 @@ model Category {
   id        String    @id @default(cuid())
   name      String
   order     Int?      @default(0)
-  status    Boolean?  @default(true)
+  active    Boolean?  @default(true)
+  depth     Int?
   parentId  String?   @map(name: "parent_id")
   createBy  String?   @map(name: "create_by")
   updateBy  String?   @map(name: "update_by")
   createdAt DateTime  @default(now()) @map(name: "created_at")
   updatedAt DateTime? @updatedAt @map(name: "updated_at")
+
+  parent   Category?  @relation("ChildCategories", fields: [parentId], references: [id])
+  children Category[] @relation("ChildCategories")
 
   categoryProduct CategoryProduct[]
   CategoryPost    CategoryPost[]
@@ -122,7 +126,7 @@ model Product {
   unit        String //don vi
   description String
   sellNumber  Int       @map(name: "sell_number")
-  status      Boolean
+  active      Boolean   @default(true)
   isNew       Boolean   @map(name: "is_new")
   isSale      Boolean   @map(name: "is_sale")
   isHot       Boolean   @map(name: "is_hot")
@@ -143,7 +147,7 @@ model Post {
   description String    @db.VarChar(350)
   content     String
   thumbnail   String    @db.VarChar(350)
-  status      Boolean
+  active      Boolean   @default(true)
   createBy    String?   @map(name: "create_by")
   updateBy    String?   @map(name: "update_by")
   createdAt   DateTime  @default(now()) @map(name: "created_at")
@@ -173,12 +177,12 @@ enum slugableType {
 }
 
 model Slug {
-  id           String       @id @default(cuid())
+  id           String        @id @default(cuid())
   content      String
-  productId    String?      @unique @map(name: "product_id")
-  postId       String?      @unique @map(name: "post_id")
-  categoryId   String?      @unique @map(name: "category_id")
-  slugableType slugableType
+  productId    String?       @unique @map(name: "product_id")
+  postId       String?       @unique @map(name: "post_id")
+  categoryId   String?       @unique @map(name: "category_id")
+  slugableType slugableType? @map(name: "slugable_type")
 
   product  Product?  @relation(fields: [productId], references: [id])
   category Category? @relation(fields: [categoryId], references: [id])
